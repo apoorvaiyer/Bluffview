@@ -60,3 +60,28 @@ function handleDeepLink() {
 
 // Handle hash changes (for dynamic navigation)
 window.addEventListener('hashchange', handleDeepLink);
+
+// Handle text selection to create deep links
+document.addEventListener('selectionchange', function() {
+    const selection = window.getSelection();
+    if (selection.rangeCount > 0) {
+        const selectedText = selection.toString().trim();
+        if (selectedText.length > 0) {
+            const range = selection.getRangeAt(0);
+            const startContainer = range.startContainer;
+
+            // Find the closest heading
+            let element = startContainer.nodeType === Node.TEXT_NODE ? startContainer.parentElement : startContainer;
+            let heading = element.closest('h1, h2, h3, h4, h5, h6');
+
+            if (heading && heading.id) {
+                const sectionId = heading.id;
+                const encodedText = encodeURIComponent(selectedText);
+                const newHash = sectionId + ':' + encodedText;
+                if (location.hash !== '#' + newHash) {
+                    history.replaceState(null, null, '#' + newHash);
+                }
+            }
+        }
+    }
+});
